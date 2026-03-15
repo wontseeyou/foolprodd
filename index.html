@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>fool.prod</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background: black;
+    overflow: hidden;
+    font-family: sans-serif;
+    color: white;
+    cursor: crosshair;
+    perspective: 1200px;
+    font-weight: bold;
+    text-shadow: 0 0 4px rgba(255,255,255,0.7);
+  }
+
+  .patch {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 6px rgba(255,255,255,0.5);
+  }
+
+  /* Slim main box */
+  #main-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) translateZ(0px);
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    padding: 20px 25px; /* less padding to slim the box */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: 280px; /* slimmer width */
+    width: 90%;
+    transform-style: preserve-3d;
+    transition: transform 0.2s ease;
+    z-index: 2;
+  }
+
+  #profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.4);
+    object-fit: cover;
+    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.05);
+  }
+
+  h1, #description, #song-title, .button-icon, #play-button, #volume-control {
+    font-weight: bold;
+    text-shadow: 0 0 4px rgba(255,255,255,0.7);
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  #description {
+    font-size: 1.2rem;
+    color: white;
+    text-align: center;
+    margin-top: -10px; /* slightly higher */
+  }
+
+  #button-container {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .button-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255,255,255,0.7);
+    transition: all 0.2s ease;
+  }
+
+  .button-icon img {
+    width: 50%;
+    height: 50%;
+    object-fit: contain;
+  }
+
+  .youtube img {
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
+  }
+
+  .button-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 12px rgba(255,255,255,0.9);
+  }
+
+  #music-box {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transform-style: preserve-3d;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    transition: all 0.2s ease;
+    perspective: 600px;
+  }
+
+  #song-title {
+    font-size: 1.1rem;
+    text-align: center;
+    transform: translateZ(10px);
+  }
+
+  #controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  #play-button {
+    padding: 6px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  #play-button:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  #progress-container {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  #progress-bar {
+    height: 100%;
+    width: 0%;
+    background: rgba(255,255,255,0.6);
+    border-radius: 4px;
+    transition: width 0.1s linear;
+  }
+
+  #volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+  }
+
+  #volume-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+  }
+
+  #volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(12px);
+  }
+</style>
+</head>
+<body>
+
+<div id="main-box">
+  <a href="https://cdn.discordapp.com/avatars/1226926386275418174/41b3d2a75e00fb36a0a53acaca341432.webp?size=1024" target="_blank">
+    <img id="profile-pic" src="https://cdn.discordapp.com/avatars/1226926386275418174/41b3d2a75e00fb36a0a53acaca341432.webp?size=1024" alt="Profile Picture">
+  </a>
+
+  <h1>fool.prod</h1>
+  <div id="description">Hi I'm fool.</div>
+
+  <div id="button-container">
+    <a href="https://github.com/wontseeyou" target="_blank" class="button-icon">
+      <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub">
+    </a>
+    <a href="https://www.youtube.com/@foolwsp" target="_blank" class="button-icon youtube">
+      <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/black-and-white-youtube-icon.png" alt="YouTube">
+    </a>
+  </div>
+
+  <div id="music-box">
+    <div id="song-title">die poor - blimey dog</div>
+    <audio id="audio" src="diepoor.mp3" preload="auto"></audio>
+    <div id="controls">
+      <button id="play-button">Pause</button>
+      <div id="progress-container">
+        <div id="progress-bar"></div>
+      </div>
+    </div>
+    <div id="volume-control">
+      Volume: <input type="range" id="volume-slider" min="0" max="100" value="50">
+    </div>
+  </div>
+</div>
+
+<script>
+  // Background dots
+  const patchCount = 200;
+  const patches = [];
+  for (let i = 0; i < patchCount; i++) {
+    const patchEl = document.createElement('div');
+    patchEl.className = 'patch';
+    const size = 2 + Math.random() * 6;
+    patchEl.style.width = size + 'px';
+    patchEl.style.height = size + 'px';
+    patchEl.style.background = `rgba(255,255,255,${0.1 + Math.random()*0.4})`;
+    patchEl.style.left = Math.random() * window.innerWidth + 'px';
+    patchEl.style.top = Math.random() * window.innerHeight + 'px';
+    document.body.appendChild(patchEl);
+    patches.push({el: patchEl, x: parseFloat(patchEl.style.left), y: parseFloat(patchEl.style.top)});
+  }
+
+  let lastMouseX = window.innerWidth / 2;
+  let lastMouseY = window.innerHeight / 2;
+  let dirX = 0, dirY = 0;
+
+  document.addEventListener('mousemove', e => {
+    dirX = e.clientX > lastMouseX ? 1 : e.clientX < lastMouseX ? -1 : 0;
+    dirY = e.clientY > lastMouseY ? 1 : e.clientY < lastMouseY ? -1 : 0;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+  });
+
+  function animate() {
+    patches.forEach(patch => {
+      patch.x += dirX * 0.5;
+      patch.y += dirY * 0.5;
+      if (patch.x > window.innerWidth) patch.x = 0;
+      if (patch.x < 0) patch.x = window.innerWidth;
+      if (patch.y > window.innerHeight) patch.y = 0;
+      if (patch.y < 0) patch.y = window.innerHeight;
+      patch.el.style.left = patch.x + 'px';
+      patch.el.style.top = patch.y + 'px';
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // Tilt main box
+  const mainBox = document.getElementById('main-box');
+  const musicBox = document.getElementById('music-box');
+  let disableMainTilt = false;
+  musicBox.addEventListener('mouseenter', () => disableMainTilt = true);
+  musicBox.addEventListener('mouseleave', () => disableMainTilt = false);
+
+  let lastRotateX = 0, lastRotateY = 0;
+  mainBox.addEventListener('mousemove', e => {
+    if(disableMainTilt) return;
+    const rect = mainBox.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const deltaX = e.clientX - centerX;
+    const deltaY = e.clientY - centerY;
+    const rotateX = (-deltaY / rect.height) * 15;
+    const rotateY = (deltaX / rect.width) * 15;
+    lastRotateX = rotateX;
+    lastRotateY = rotateY;
+    mainBox.style.transform = `translate(-50%, -50%) translateZ(15px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  });
+  mainBox.addEventListener('mouseleave', () => {
+    mainBox.style.transform = `translate(-50%, -50%) translateZ(10px) rotateX(${lastRotateX}deg) rotateY(${lastRotateY}deg)`;
+  });
+
+  // Music tilt
+  function tiltElement(el, sensitivity = 25){
+    el.addEventListener('mouseenter', () => el.addEventListener('mousemove', tiltHandler));
+    el.addEventListener('mouseleave', () => {
+      el.removeEventListener('mousemove', tiltHandler);
+      el.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg)';
+    });
+    function tiltHandler(e){
+      const rect = el.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const deltaX = e.clientX - centerX;
+      const deltaY = e.clientY - centerY;
+      const rotateX = (-deltaY / rect.height) * sensitivity;
+      const rotateY = (deltaX / rect.width) * sensitivity;
+      el.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    }
+  }
+
+  document.querySelectorAll('.button-icon').forEach(icon => tiltElement(icon, 15));
+  tiltElement(document.getElementById('music-box'), 15);
+
+  const audio = document.getElementById('audio');
+  const playBtn = document.getElementById('play-button');
+  const progressBar = document.getElementById('progress-bar');
+  const volumeSlider = document.getElementById('volume-slider');
+  audio.volume = 0.5;
+  audio.play().catch(() => playBtn.textContent = 'Play');
+
+  playBtn.addEventListener('click', () => {
+    if(audio.paused){ audio.play(); playBtn.textContent='Pause'; }
+    else { audio.pause(); playBtn.textContent='Play'; }
+  });
+
+  audio.addEventListener('timeupdate', () => {
+    const progress = (audio.currentTime / audio.duration) * 100;
+    progressBar.style.width = progress + '%';
+  });
+
+  audio.addEventListener('ended', () => {
+    playBtn.textContent='Play';
+    progressBar.style.width='0%';
+  });
+
+  volumeSlider.addEventListener('input', () => audio.volume = volumeSlider.value/100);
+</script>
+</body>
+</html>
