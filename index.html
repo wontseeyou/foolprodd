@@ -37,12 +37,12 @@
     border: 1px solid rgba(255,255,255,0.2);
     backdrop-filter: blur(16px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-    padding: 20px 25px; /* less padding to slim the box */
+    padding: 20px 25px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    max-width: 280px; /* slimmer width */
+    max-width: 280px; 
     width: 90%;
     transform-style: preserve-3d;
     transition: transform 0.2s ease;
@@ -74,7 +74,7 @@
     font-size: 1.2rem;
     color: white;
     text-align: center;
-    margin-top: -10px; /* slightly higher */
+    margin-top: -10px; 
   }
 
   #button-container {
@@ -237,7 +237,7 @@
 </div>
 
 <script>
-  // Background dots
+  
   const patchCount = 200;
   const patches = [];
   for (let i = 0; i < patchCount; i++) {
@@ -279,7 +279,7 @@
   }
   animate();
 
-  // Tilt main box
+  
   const mainBox = document.getElementById('main-box');
   const musicBox = document.getElementById('music-box');
   let disableMainTilt = false;
@@ -304,7 +304,7 @@
     mainBox.style.transform = `translate(-50%, -50%) translateZ(10px) rotateX(${lastRotateX}deg) rotateY(${lastRotateY}deg)`;
   });
 
-  // Music tilt
+  
   function tiltElement(el, sensitivity = 25){
     el.addEventListener('mouseenter', () => el.addEventListener('mousemove', tiltHandler));
     el.addEventListener('mouseleave', () => {
